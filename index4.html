@@ -309,31 +309,45 @@
                         <div class="space-y-4">
                             <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
                                 <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 mb-4">
-                                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 mb-4">
-                                    <div class="text-orange-400 font-bold text-xs mb-3 border-b border-gray-600 pb-1">3D 場景設定 (MMD PMX)</div>
-                                    <p class="text-[10px] text-gray-400 mb-2">解決子資料夾貼圖遺失問題：<br>1. 先選 PMX 檔，2. 再選擇包含所有貼圖的「主資料夾」</p>
-                                    
-                                    <input type="file" id="pmx-file-upload" accept=".pmx" class="hidden">
-                                    <input type="file" id="pmx-dir-upload" webkitdirectory directory class="hidden">
-                                    
-                                    <div class="flex flex-col gap-2">
-                                        <div class="flex gap-2">
-                                            <button id="btn-select-pmx" class="flex-1 bg-orange-700 hover:bg-orange-600 text-white font-bold py-1.5 rounded text-xs transition-colors">1. 選擇 PMX 檔</button>
-                                            <button id="btn-select-dir" class="flex-1 bg-gray-700 text-gray-500 font-bold py-1.5 rounded text-xs transition-colors cursor-not-allowed" disabled>2. 選擇貼圖資料夾</button>
-                                        </div>
-                                        <button id="btn-remove-pmx" class="bg-red-700 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded text-xs hidden transition-colors">🗑️ 移除場景</button>
-                                        <div id="pmx-status" class="text-[11px] text-yellow-400 font-mono mt-1 whitespace-pre-line"></div>
-                                    </div>
+                                <div class="text-orange-400 font-bold text-xs mb-3 border-b border-gray-600 pb-1">3D 場景設定 (MMD PMX)</div>
+                                <p class="text-[10px] text-gray-400 mb-2">請直接點擊下方按鈕，選擇包含模型與所有貼圖的「整個資料夾」</p>
+                                
+                                <input type="file" id="pmx-dir-upload" webkitdirectory directory multiple class="hidden">
+                                
+                                <div class="flex flex-col gap-2">
+                                    <button id="btn-select-dir" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 rounded text-xs transition-colors shadow-lg">📂 選擇 MMD 場景資料夾</button>
+                                    <button id="btn-remove-pmx" class="bg-red-700 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded text-xs hidden transition-colors">🗑️ 移除場景</button>
+                                    <div id="pmx-status" class="text-[11px] text-yellow-400 font-mono mt-1 whitespace-pre-line"></div>
                                 </div>
+                            </div>
                                     <p class="text-[10px] text-gray-400 mb-2">⚠ 注意：請用滑鼠「一次全選」 .pmx 檔案以及它資料夾裡的所有貼圖檔案！</p>
                                     
                                     <input type="file" id="pmx-upload" multiple accept=".pmx,.png,.jpg,.jpeg,.bmp,.tga,.dds" class="hidden">
-                                    <div class="flex gap-2">
-                                        <button id="btn-load-pmx" class="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-1.5 rounded text-xs transition-colors">📂 選擇 PMX 場景包</button>
-                                        <button id="btn-remove-pmx" class="bg-red-700 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded text-xs hidden transition-colors">🗑️ 移除</button>
-                                    </div>
+                                    
                                 </div>
                                 <div class="text-yellow-400 font-bold text-xs mb-3 border-b border-gray-600 pb-1">背景設定 (Background)</div>
+                                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 mt-4">
+                                <div class="text-cyan-400 font-bold text-xs mb-3 border-b border-gray-600 pb-1">AI 追蹤開關 (Tracking)</div>
+                                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 mt-4">
+                                    <div class="text-cyan-400 font-bold text-xs mb-3 border-b border-gray-600 pb-1">AI 追蹤開關 (Tracking)</div>
+                                    <div class="flex flex-col gap-2">
+                                        <button id="toggle-eye-btn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-1.5 rounded text-xs transition-all">
+                                            ✖️ 眼睛追蹤：關閉
+                                        </button>
+                                        <button id="toggle-leg-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-1.5 rounded text-xs transition-all">
+                                            🦵 腿部追蹤：關閉
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 mt-4">
+                                    <div class="text-cyan-400 font-bold text-xs mb-3 border-b border-gray-600 pb-1">顯示控制 (Display)</div>
+                                    <div class="flex gap-2">
+                                        <button id="toggle-preview-btn" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-1.5 rounded text-xs transition-all">
+                                            🖼️ 預覽視窗：顯示中
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                                 <div class="flex gap-2">
                                     <button onclick="changeBg('#1a1a1a')" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs border border-gray-500">深灰 (預設)</button>
                                     <button onclick="changeBg('#00FF00')" class="px-3 py-1 bg-green-600 hover:bg-green-500 text-black font-bold rounded text-xs border border-green-400">綠幕 (Green)</button>
@@ -348,9 +362,9 @@
                                 <div>
                                     <div class="flex justify-between items-center mb-1">
                                         <span class="text-xs text-gray-300">光暈強度 (Strength)</span>
-                                        <span id="bloom-strength-val" class="text-xs font-mono text-pink-300">0.3</span>
+                                        <span id="bloom-strength-val" class="text-xs font-mono text-pink-300">0</span>
                                     </div>
-                                    <input type="range" id="bloom-strength-slider" min="0" max="3" step="0.1" value="0.3" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-pink-500">
+                                    <input type="range" id="bloom-strength-slider" min="0" max="3" step="0.1" value="0" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-pink-500">
                                 </div>
 
                                 <div>
@@ -417,6 +431,8 @@
         import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'; 
         import { GammaCorrectionShader } from 'three/addons/shaders/GammaCorrectionShader.js';
         import { MMDLoader } from 'three/addons/loaders/MMDLoader.js';
+        import { DDSLoader } from 'three/addons/loaders/DDSLoader.js';
+        import { TGALoader } from 'three/addons/loaders/TGALoader.js';
 
         // --- Memory Optimization: Pre-allocate Math Objects ---
         const _v1 = new THREE.Vector3();
@@ -453,6 +469,9 @@
             bgColor: '#1a1a1a',
             isRecordingMotion: false,
             motionFrames: [], // 儲存錄製的動作數據
+            enableEyeTracking: false,
+            previewVisible: true,
+            enableLegTracking: false,
             
             mirror: {
                 arms: { x: 1, y: 1, z: 1 },
@@ -622,10 +641,10 @@
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x111111);
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 100);
-        camera.position.set(0, 1.4, 4);
+        camera.position.set(0, 1.4, 2);
 
         const controls = new OrbitControls(camera, renderer.domElement);
-        controls.target.set(0, 1, 0);
+        controls.target.set(0, 1.4, 0);
         controls.update();
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.3));
@@ -650,7 +669,7 @@
             new THREE.Vector2(window.innerWidth, window.innerHeight), 
             1.5, 0.4, 0.85
         );
-        bloomPass.strength = 0.3; 
+        bloomPass.strength = 0; 
         bloomPass.radius = 0.5;   
         bloomPass.threshold = 0.85; 
         const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
@@ -738,6 +757,14 @@
                 if (results.faceLandmarks) {
                     drawConnectors(ctx, results.faceLandmarks, FACEMESH_TESSELATION, { color: '#1e90ff', lineWidth: 1 });
                 }
+                if (results.leftHandLandmarks) {
+                    drawConnectors(ctx, results.leftHandLandmarks, HAND_CONNECTIONS, { color: '#00cc00', lineWidth: 2 });
+                    drawLandmarks(ctx, results.leftHandLandmarks, { color: '#ffffff', radius: 2 });
+                }
+                if (results.rightHandLandmarks) {
+                    drawConnectors(ctx, results.rightHandLandmarks, HAND_CONNECTIONS, { color: '#00cc00', lineWidth: 2 });
+                    drawLandmarks(ctx, results.rightHandLandmarks, { color: '#ffffff', radius: 2 });
+                }
                 ctx.restore();
             }
 
@@ -749,7 +776,12 @@
 
             if (!results.poseLandmarks || !state.vrm || isTesting) return;
 
-            animateVRM(results.poseWorldLandmarks || results.poseLandmarks, results.faceLandmarks);
+            animateVRM(
+                results.poseWorldLandmarks || results.poseLandmarks, 
+                results.faceLandmarks,
+                results.leftHandLandmarks,   // 餵入左手特徵點
+                results.rightHandLandmarks   // 餵入右手特徵點
+            );
         });
 
         const loader = new GLTFLoader();
@@ -814,9 +846,32 @@
         function controlBone(vrm, key, lm3D, n1, n2, basis) {
             if (!lm3D[n1] || !lm3D[n2]) return;
 
+            const visibility = lm3D[n2].visibility || 0; 
+
+            if (visibility < 0.5) {
+                const node = vrm.humanoid.getNormalizedBoneNode(key);
+                if (node) {
+                    if (key.toLowerCase().includes("upperarm")) {
+                        // 1. 大臂：從 T-Pose 方向旋轉到「目標方向」
+                        _v1.set(basis[0], basis[1], basis[2]); 
+                        
+                        // 如果之前 -1 是舉手，這裡改用 1 就會變成垂下 (立正)
+                        _v2.set(0, 1, 0); 
+                        
+                        _dummyQ.setFromUnitVectors(_v1, _v2);  
+                        adaptiveSlerp(node, _dummyQ, 0.05);
+                    } else {
+                        // 2. 小臂：回歸 0 旋轉（相對於大臂伸直）
+                        adaptiveSlerp(node, new THREE.Quaternion(), 0.05);
+                    }
+                }
+                return;
+            }
+
             convert(lm3D[n1], _v1);
             convert(lm3D[n2], _v2);
             _currentDir.subVectors(_v2, _v1).normalize();
+
             // --- 校準修正（安全版，不會 freeze） ---
             if (state.calibration.active && state.calibration.poseDirs[key]) {
 
@@ -835,8 +890,6 @@
                     .normalize();
             }
 
-
-
             let mirrorMult = { x: 1, y: 1, z: 1 };
             if (key.toLowerCase().includes('arm') || key.toLowerCase().includes('hand')) {
                 mirrorMult = state.mirror.arms;
@@ -852,23 +905,6 @@
 
             _restDir.set(basis[0], basis[1], basis[2]);
 
-            if (key.includes("LowerArm")) {
-                const isVertical = Math.abs(_currentDir.y) > 0.5;
-                const isNotBendingInwards = Math.abs(_currentDir.x) < 0.3;
-
-                if (isVertical && isNotBendingInwards) {
-                    const straightness = (Math.abs(_currentDir.y) - 0.5) / 0.5; 
-                    const clampedStraightness = Math.max(0, Math.min(1, straightness));
-                    _currentDir.lerp(_restDir, clampedStraightness);
-                } else {
-                    if (_currentDir.y < 0 && Math.abs(_currentDir.x) > 0.1) {
-                        _currentDir.x *= 0.6; 
-                        _currentDir.z *= 0.8; 
-                    }
-                }
-                _currentDir.normalize();
-            }
-
             _targetQuat.setFromUnitVectors(_restDir, _currentDir);
 
             const node = vrm.humanoid.getNormalizedBoneNode(key);
@@ -878,7 +914,57 @@
             }
         }
 
-        function animateVRM(lm3D, faceLandmarks) {
+        const _handEuler = new THREE.Euler();
+        const _handQuat = new THREE.Quaternion();
+
+        function applyHandRig(handRig, side) {
+            if (!handRig) return;
+            const sideLower = side.toLowerCase(); 
+            
+            const fingers = [
+                "Wrist", 
+                "ThumbProximal", "ThumbIntermediate", "ThumbDistal", 
+                "IndexProximal", "IndexIntermediate", "IndexDistal",
+                "MiddleProximal", "MiddleIntermediate", "MiddleDistal",
+                "RingProximal", "RingIntermediate", "RingDistal",
+                "LittleProximal", "LittleIntermediate", "LittleDistal"
+            ];
+            
+            fingers.forEach(finger => {
+                const rigKey = side + finger; 
+                const vrmBoneName = finger === "Wrist" ? `${sideLower}Hand` : `${sideLower}${finger}`;
+                
+                const node = state.vrm.humanoid.getNormalizedBoneNode(vrmBoneName);
+                const rotation = handRig[rigKey];
+                
+                if (node && rotation) {
+                    const fingerSensitivity = 1.8;
+                    let rotX = rotation.x * -1 * fingerSensitivity;
+                     let rotY = rotation.y * -1; 
+                    let rotZ = rotation.z * -1; 
+                    
+                    if (finger === "Wrist") {
+                        rotZ = 0; // 完全鎖定翻轉 (Roll)，防止手肘因深度誤判而旋轉崩潰
+                        rotY = THREE.MathUtils.clamp(rotY, -0.1, 0.1); // 限制左右擺動，保持手掌穩定
+                        rotX = THREE.MathUtils.clamp(rotX, -0.3, 0.3); // 限制上下擺動
+                        
+                        // 讓手掌的旋轉反應更平滑
+                        _handEuler.set(rotX, rotY, rotZ, 'XYZ');
+                        _handQuat.setFromEuler(_handEuler);
+                        adaptiveSlerp(node, _handQuat, state.smoothness * 0.05); 
+                        return;
+                    }
+
+                    // 將修正後的角度套用進 Euler (設定旋轉順序為 XYZ)
+                    _handEuler.set(rotX, rotY, rotZ, 'XYZ');
+                    _handQuat.setFromEuler(_handEuler);
+                    
+                    adaptiveSlerp(node, _handQuat, state.smoothness * 0.5);
+                }
+            });
+        }
+
+        function animateVRM(lm3D, faceLandmarks, leftHand, rightHand) {
             if (!state.vrm || !lm3D) return;
 
             convert(lm3D[11], _v1); 
@@ -896,33 +982,112 @@
             if (hipsNode && lm3D[23] && lm3D[24]) {
                 const l = lm3D[23];
                 const r = lm3D[24];
-                const height2D = 1.0 - (l.y + r.y) * 0.5;
                 
-                // 強力限制 Z 軸 (前後)，只保留 5% 的影響力，避免人物前後瞬移
-                // 視覺上深度最容易出錯，所以我們把它壓平一點
-                const zDepth = THREE.MathUtils.clamp(((l.z + r.z) * 0.5), -0.2, 0.2); 
+                let targetY;
+                let targetZ = 0;
 
-                _hipsPos.set(
-                    0, 
-                    height2D * 0.6 + 0.8, // 稍微調整高度係數，讓蹲下更自然
-                    zDepth * 0.05 // 極小的前後移動，保持穩定
-                );
-                
-                // 臀部位置使用非常平滑的係數 (0.1)
+                if (state.enableLegTracking) {
+                    // 開啟時：動態計算高度 (下蹲會跟著降低)
+                    const height2D = 1.0 - (l.y + r.y) * 0.5;
+                    targetY = height2D * 0.6 + 0.8;
+                    targetZ = THREE.MathUtils.clamp(((l.z + r.z) * 0.5), -0.2, 0.2) * 0.05; 
+                } else {
+                    // 關閉時：高度強制鎖死，不往前或往後偏移
+                    targetY = 0.95; 
+                    targetZ = 0;
+                }
+
+                _hipsPos.set(0, targetY, targetZ);
                 hipsNode.position.lerp(_hipsPos, 0.1);
             }
 
-            if (faceLandmarks && state.vrm) updateMouth(faceLandmarks);
-            if (faceLandmarks) updateBlink(faceLandmarks);
+            if (faceLandmarks) {
+                const vw = state.videoSource?.videoWidth || 0;
+                const vh = state.videoSource?.videoHeight || 0;
+
+                // 方案 A：加入防錯判斷，確保解析度大於 0 才傳入
+                const faceRig = Kalidokit.Face.solve(faceLandmarks, {
+                    runtime: "mediapipe",
+                    video: vw > 0 ? state.videoSource : null,
+                    imageSize: vw > 0 ? { width: vw, height: vh } : null
+                });
+
+                // 方案 B (更穩定)：MediaPipe 點位已經是 0~1 正規化，有時不傳 imageSize 反而更精準
+                // const faceRig = Kalidokit.Face.solve(faceLandmarks, { runtime: "mediapipe" });
+
+                console.log("左眼實際數值:", faceRig.eye.l); // 如果數值開始變化，代表解析度問題已解決
+
+                const exp = state.vrm.expressionManager;
+                const humanoid = state.vrm.humanoid;
+
+                if (exp) {
+                    // 1. 定義嘴部形狀列表
+                    const mouthShapes = [
+                        { key: 'aa', val: faceRig.mouth.shape.A },
+                        { key: 'ih', val: faceRig.mouth.shape.I },
+                        { key: 'ou', val: faceRig.mouth.shape.U },
+                        { key: 'ee', val: faceRig.mouth.shape.E },
+                        { key: 'oh', val: faceRig.mouth.shape.O }
+                    ];
+
+                    mouthShapes.forEach(shape => {
+                        // 取得目前的表情數值
+                        const currentVal = exp.getValue(shape.key) || 0;
+                        
+                        // --- 優化核心邏輯 ---
+                        let targetVal = shape.val;
+
+                        // A. 門檻值過濾 (Dead Zone)：如果數值太小 (例如低於 0.05)，視為閉嘴，防止抽搐
+                        if (targetVal < 0.05) {
+                            targetVal = 0;
+                        }
+
+                        // B. 平滑化 (Lerp)：不要直接跳到目標值，而是緩慢移動過去
+                        // 0.3 代表每幀移動 30%，數值越小越平滑但延遲感會增加
+                        const smoothedVal = THREE.MathUtils.lerp(currentVal, targetVal, 0.3);
+
+                        exp.setValue(shape.key, smoothedVal);
+                    });
+                }
+
+                // C. 頭部旋轉 (讓角色頭部跟著動起來)
+                const headNode = humanoid.getNormalizedBoneNode('head');
+                const neckNode = humanoid.getNormalizedBoneNode('neck');
+
+                if (headNode && neckNode) {
+                    // 將求解出的 Euler 角度轉換為四元數並套用平滑
+                    // faceRig.head 包含 x, y, z 的旋轉弧度
+                    const headQuat = new THREE.Quaternion().setFromEuler(
+                        new THREE.Euler(faceRig.head.x, faceRig.head.y, faceRig.head.z, 'XYZ')
+                    );
+                    
+                    // 將旋轉分配給頭部與脖子，讓動作更自然 (建議比例 7:3)
+                    adaptiveSlerp(headNode, headQuat, state.smoothness * 0.1);
+                }
+            }
+            //if (faceLandmarks && state.vrm) updateMouth(faceLandmarks);
+            //if (faceLandmarks) updateBlink(faceLandmarks);
             
             controlBone(state.vrm, 'leftUpperArm', lm3D, 11, 13, [-1, 0, 0]); 
             controlBone(state.vrm, 'leftLowerArm', lm3D, 13, 15, [-1, 0, 0]);
             controlBone(state.vrm, 'rightUpperArm', lm3D, 12, 14, [1, 0, 0]);
             controlBone(state.vrm, 'rightLowerArm', lm3D, 14, 16, [1, 0, 0]);
-            controlBone(state.vrm, 'leftUpperLeg', lm3D, 23, 25, [0, -1, 0]);
-            controlBone(state.vrm, 'leftLowerLeg', lm3D, 25, 27, [0, -1, 0]);
-            controlBone(state.vrm, 'rightUpperLeg', lm3D, 24, 26, [0, -1, 0]);
-            controlBone(state.vrm, 'rightLowerLeg', lm3D, 26, 28, [0, -1, 0]);
+            if (state.enableLegTracking) {
+                controlBone(state.vrm, 'leftUpperLeg', lm3D, 23, 25, [0, -1, 0]);
+                controlBone(state.vrm, 'leftLowerLeg', lm3D, 25, 27, [0, -1, 0]);
+                controlBone(state.vrm, 'rightUpperLeg', lm3D, 24, 26, [0, -1, 0]);
+                controlBone(state.vrm, 'rightLowerLeg', lm3D, 26, 28, [0, -1, 0]);
+            }
+
+            // ▼▼▼ 新增：手指捕捉邏輯 ▼▼▼
+            if (leftHand) {
+                const leftRig = Kalidokit.Hand.solve(leftHand, "Left");
+                applyHandRig(leftRig, "Left");
+            }
+            if (rightHand) {
+                const rightRig = Kalidokit.Hand.solve(rightHand, "Right");
+                applyHandRig(rightRig, "Right");
+            }
 
             state.vrm.update(0.016);
             captureMotionFrame();
@@ -972,6 +1137,16 @@
         }
 
         function updateBlink(face) {
+            const exp = state.vrm.expressionManager;
+            if (!exp) return;
+
+            if (!state.enableEyeTracking) {
+                exp.setValue('blink', 0);
+                exp.setValue('blinkLeft', 0);
+                exp.setValue('blinkRight', 0);
+                return;
+            }
+
             const lTop = face[159], lBot = face[145], rTop = face[386], rBot = face[374];
             if (!lTop || !lBot || !rTop || !rBot) return;
 
@@ -990,8 +1165,6 @@
             state.leftBlink  = THREE.MathUtils.lerp(state.leftBlink,  leftBlink,  0.4);
             state.rightBlink = THREE.MathUtils.lerp(state.rightBlink, rightBlink, 0.4);
 
-            const exp = state.vrm.expressionManager;
-            if (!exp) return;
 
             const BOTH_EYES_THRESHOLD = 0.75;
             if (state.leftBlink > BOTH_EYES_THRESHOLD && state.rightBlink > BOTH_EYES_THRESHOLD) {
@@ -1007,48 +1180,44 @@
 
         const setupEventListeners = () => {
 
-            // --- MMD PMX 兩步式背景載入系統 (支援子資料夾) ---
+            // --- MMD PMX 單步式背景載入系統 (整包資料夾 + 強力貼圖修復) ---
             let pmxFile = null;
             let textureFiles = [];
             let currentPmxUrls = [];
 
-            const btnSelectPmx = getEl('btn-select-pmx');
             const btnSelectDir = getEl('btn-select-dir');
-            const pmxFileUpload = getEl('pmx-file-upload');
             const pmxDirUpload = getEl('pmx-dir-upload');
             const pmxStatus = getEl('pmx-status');
             const btnRemovePmx = getEl('btn-remove-pmx');
 
-            if (btnSelectPmx) {
-                // 步驟 1: 點擊選擇模型
-                btnSelectPmx.addEventListener('click', () => pmxFileUpload.click());
-                
-                // 步驟 2: 點擊選擇資料夾
+            if (btnSelectDir) {
+                // 點擊按鈕觸發資料夾選擇
                 btnSelectDir.addEventListener('click', () => pmxDirUpload.click());
 
-                // 處理步驟 1 的檔案
-                pmxFileUpload.addEventListener('change', (e) => {
-                    if (e.target.files.length > 0) {
-                        pmxFile = e.target.files[0];
-                        pmxStatus.innerText = `已選擇: ${pmxFile.name}\n👉 現在請點擊按鈕選擇該模型的「主資料夾」`;
-                        
-                        // 解鎖步驟 2 的按鈕
-                        btnSelectDir.disabled = false;
-                        btnSelectDir.classList.remove('bg-gray-700', 'text-gray-500', 'cursor-not-allowed');
-                        btnSelectDir.classList.add('bg-orange-600', 'hover:bg-orange-500', 'text-white');
-                    }
-                });
-
-                // 處理步驟 2 的資料夾
                 pmxDirUpload.addEventListener('change', (e) => {
-                    if (!pmxFile) return;
-                    textureFiles = Array.from(e.target.files);
+                    const files = Array.from(e.target.files);
+                    if (files.length === 0) return;
+
+                    // 1. 自動從資料夾中尋找 .pmx 檔案
+                    const pmxFiles = files.filter(f => f.name.toLowerCase().endsWith('.pmx'));
                     
-                    if (textureFiles.length === 0) {
-                        showMessage("選取的資料夾是空的！");
+                    if (pmxFiles.length === 0) {
+                        showMessage("在選擇的資料夾中找不到 .pmx 模型檔！");
+                        pmxDirUpload.value = '';
                         return;
                     }
-                    loadPMXScene(); // 兩個條件都滿足，開始載入
+
+                    // 2. 如果有多個 PMX，預設載入第一個
+                    pmxFile = pmxFiles[0];
+                    textureFiles = files; // 保留所有貼圖與資料夾結構
+                    
+                    if (pmxFiles.length > 1) {
+                        pmxStatus.innerText = `找到多個模型，預設載入: ${pmxFile.name}`;
+                    } else {
+                        pmxStatus.innerText = `準備載入: ${pmxFile.name}`;
+                    }
+
+                    loadPMXScene();
                 });
 
                 btnRemovePmx.addEventListener('click', () => {
@@ -1059,6 +1228,7 @@
                         currentPmxUrls.forEach(URL.revokeObjectURL);
                         currentPmxUrls = [];
                         pmxStatus.innerText = "";
+                        pmxDirUpload.value = '';
                         showMessage("已移除 MMD 場景", false);
                     }
                 });
@@ -1076,49 +1246,91 @@
                 currentPmxUrls.forEach(URL.revokeObjectURL);
                 currentPmxUrls = [];
 
-                // 建立檔案路徑的 Map
-                const fileMap = {};
+                // 建立超強大檔案特徵資料庫
+                const fileRecords = [];
                 
-                // 掃描資料夾內的所有檔案 (包含子資料夾)
                 textureFiles.forEach(file => {
                     const url = URL.createObjectURL(file);
                     currentPmxUrls.push(url);
-                    const normalizedPath = file.webkitRelativePath.replace(/\\/g, '/').toLowerCase();
-                    fileMap[normalizedPath] = url;
+                    
+                    const lowerPath = file.webkitRelativePath.replace(/\\/g, '/').toLowerCase();
+                    const lowerName = file.name.toLowerCase();
+                    const extIdx = lowerName.lastIndexOf('.');
+                    const nameNoExt = extIdx > -1 ? lowerName.substring(0, extIdx) : lowerName;
+                    
+                    // 亂碼剝離：只保留英文、數字、空白與底線
+                    const asciiName = nameNoExt.replace(/[^\x20-\x7E]/g, '').trim();
+
+                    fileRecords.push({ url, path: lowerPath, name: lowerName, nameNoExt, asciiName });
                 });
 
-                // 🔥 修正點 1：把 PMX 檔案本身也加進我們的 fileMap 配對器中
+                // PMX 本身的紀錄
                 const pmxUrl = URL.createObjectURL(pmxFile);
                 currentPmxUrls.push(pmxUrl);
-                fileMap[pmxFile.name.toLowerCase()] = pmxUrl; // 讓它能透過檔名找到 Blob
+                fileRecords.push({
+                    url: pmxUrl,
+                    path: pmxFile.name.toLowerCase(),
+                    name: pmxFile.name.toLowerCase(),
+                    nameNoExt: pmxFile.name.toLowerCase().split('.')[0],
+                    asciiName: pmxFile.name.toLowerCase().split('.')[0].replace(/[^\x20-\x7E]/g, '').trim()
+                });
 
-                // 設定 LoadingManager 來攔截 Three.js 的貼圖請求
+                // 攔截並重定向 Three.js 的讀取請求
                 const manager = new THREE.LoadingManager();
+                manager.addHandler(/\.dds$/i, new DDSLoader(manager));
+                manager.addHandler(/\.tga$/i, new TGALoader(manager));
                 manager.setURLModifier((url) => {
-                    if (url.startsWith('blob:')) return url;
+                    if (url.startsWith('blob:') || url.startsWith('data:')) return url;
 
-                    let reqPath = url.replace(/\\/g, '/').toLowerCase();
-                    if (reqPath.startsWith('./')) reqPath = reqPath.substring(2);
-
-                    for (const [localPath, blobUrl] of Object.entries(fileMap)) {
-                        if (localPath.endsWith(reqPath)) {
-                            return blobUrl;
-                        }
-                    }
+                    let reqPath = url;
+                    // 嘗試解碼 URI (例如把 %EF%BF%87 解碼回亂碼字元)
+                    try { reqPath = decodeURIComponent(reqPath); } catch(e) {}
                     
-                    console.warn(`[PMX 貼圖遺失] 找不到對應的檔案: ${reqPath}`);
-                    return url; 
+                    reqPath = reqPath.replace(/\\/g, '/').toLowerCase();
+                    reqPath = reqPath.replace(/^(\.\.\/|\.\/)+/, ''); // 拔除相對路徑符號
+
+                    const reqFileName = reqPath.split('/').pop();
+                    const extIdx = reqFileName.lastIndexOf('.');
+                    const reqNameNoExt = extIdx > -1 ? reqFileName.substring(0, extIdx) : reqFileName;
+                    const reqAscii = reqNameNoExt.replace(/[^\x20-\x7E]/g, '').trim();
+
+                    // 策略 1：精確完整路徑比對
+                    let match = fileRecords.find(f => f.path.endsWith(reqPath));
+                    if (match) return match.url;
+
+                    // 策略 2：忽略資料夾，只比對完整檔名
+                    match = fileRecords.find(f => f.name === reqFileName);
+                    if (match) return match.url;
+
+                    // 策略 3：忽略副檔名 (例如 PMX 找 .dds 但你只有 .png)
+                    match = fileRecords.find(f => f.nameNoExt === reqNameNoExt);
+                    if (match) return match.url;
+
+                    // 策略 4：暴力亂碼修復比對 (拔除日文/中文/亂碼後比對英數部分)
+                    // 🔥 修正：把長度限制改為 > 0，這樣檔名只有 "1" 的也能配對到！
+                    if (reqAscii.length > 0) { 
+                        match = fileRecords.find(f => f.asciiName === reqAscii);
+                        
+                        // 策略 5：(殺手鐧) 如果完全相等找不到，找「包含」這個英數特徵的檔案
+                        if (!match) {
+                            match = fileRecords.find(f => f.asciiName.includes(reqAscii) || reqAscii.includes(f.asciiName));
+                        }
+                        
+                        if (match) return match.url;
+                    }
+
+                    console.warn(`[PMX 貼圖遺失] 無法配對: ${url} (過濾後特徵: ${reqAscii})`);
+                    return url;
                 });
 
                 const loader = new MMDLoader(manager);
                 
-                // 🔥 修正點 2：這裡傳入原本的「檔名」而不是 Blob URL！
-                // 這樣 Three.js 就能認出 .pmx 副檔名，接著我們的 manager 會在底層自動把它替換成 Blob
                 loader.load(pmxFile.name, (mesh) => {
                     state.pmxMesh = mesh;
                     mesh.scale.set(0.085, 0.085, 0.085); 
                     mesh.position.set(0, 0, 0);
                     
+                    // MMD 材質修正
                     mesh.traverse((child) => {
                         if (child.isMesh && child.material) {
                             if (Array.isArray(child.material)) {
@@ -1137,19 +1349,11 @@
                     getEl('loading-indicator').style.display = 'none';
                     showMessage("MMD 場景載入成功！", false);
                     
-                    pmxFile = null;
-                    textureFiles = [];
-                    pmxFileUpload.value = '';
-                    pmxDirUpload.value = '';
-                    btnSelectDir.disabled = true;
-                    btnSelectDir.classList.add('bg-gray-700', 'text-gray-500', 'cursor-not-allowed');
-                    btnSelectDir.classList.remove('bg-orange-600', 'hover:bg-orange-500', 'text-white');
-
                 }, undefined, (err) => {
                     console.error("PMX Load Error:", err);
                     getEl('loading-indicator').style.display = 'none';
-                    pmxStatus.innerText = "❌ 載入失敗，可能缺少貼圖檔";
-                    showMessage("PMX 載入失敗，請確認資料夾是否正確。");
+                    pmxStatus.innerText = "❌ 載入失敗，請確認資料夾內容";
+                    showMessage("PMX 載入失敗，可能檔案格式不支援。");
                 });
             }
 
@@ -1230,6 +1434,74 @@
                     });
                 }
             });
+
+            const toggleEyeBtn = getEl('toggle-eye-btn');
+            if (toggleEyeBtn) {
+                toggleEyeBtn.addEventListener('click', () => {
+                    state.enableEyeTracking = !state.enableEyeTracking;
+                    
+                    if (state.enableEyeTracking) {
+                        toggleEyeBtn.innerText = "👁️ 眼睛追蹤：開啟";
+                        toggleEyeBtn.classList.replace('bg-gray-600', 'bg-cyan-600');
+                    } else {
+                        toggleEyeBtn.innerText = "✖️ 眼睛追蹤：關閉";
+                        toggleEyeBtn.classList.replace('bg-cyan-600', 'bg-gray-600');
+                        showMessage("眼睛追蹤已停用", false);
+                    }
+                });
+            }
+
+            // --- 腿部追蹤開關邏輯 ---
+            const toggleLegBtn = getEl('toggle-leg-btn');
+            if (toggleLegBtn) {
+                toggleLegBtn.addEventListener('click', () => {
+                    state.enableLegTracking = !state.enableLegTracking;
+                    
+                    if (state.enableLegTracking) {
+                        toggleLegBtn.innerText = "🦵 腿部追蹤：開啟";
+                        toggleLegBtn.classList.replace('bg-gray-600', 'bg-cyan-600');
+                        showMessage("腿部追蹤已開啟 (全身模式)", false);
+                    } else {
+                        toggleLegBtn.innerText = "🦵 腿部追蹤：關閉";
+                        toggleLegBtn.classList.replace('bg-cyan-600', 'bg-gray-600');
+                        showMessage("腿部追蹤已停用 (半身鎖定模式)", false);
+                        
+                        // 關閉時，立刻將腿部骨骼歸零(立正)，避免卡在奇怪的姿勢
+                        if (state.vrm) {
+                            const legs = ['leftUpperLeg', 'leftLowerLeg', 'rightUpperLeg', 'rightLowerLeg'];
+                            legs.forEach(bone => {
+                                const node = state.vrm.humanoid.getNormalizedBoneNode(bone);
+                                if (node) adaptiveSlerp(node, new THREE.Quaternion(), 1); // 強制歸零
+                            });
+                        }
+                    }
+                });
+            }
+
+            // --- 預覽視窗顯示開關 (不影響 AI 偵測) ---
+            const togglePreviewBtn = getEl('toggle-preview-btn');
+            const floatingPreview = getEl('floating-preview');
+
+            if (togglePreviewBtn && floatingPreview) {
+                togglePreviewBtn.addEventListener('click', () => {
+                    state.previewVisible = !state.previewVisible;
+                    
+                    if (state.previewVisible) {
+                        // 顯示視窗
+                        floatingPreview.style.opacity = "1";
+                        floatingPreview.style.pointerEvents = "auto";
+                        togglePreviewBtn.innerText = "🖼️ 預覽視窗：顯示中";
+                        togglePreviewBtn.classList.replace('bg-gray-600', 'bg-blue-600');
+                    } else {
+                        // 隱藏視窗 (使用 opacity 0 是為了讓 video 標籤在背景繼續渲染，AI 才能抓到圖)
+                        floatingPreview.style.opacity = "0";
+                        floatingPreview.style.pointerEvents = "none";
+                        togglePreviewBtn.innerText = "👻 預覽視窗：隱藏中";
+                        togglePreviewBtn.classList.replace('bg-blue-600', 'bg-gray-600');
+                        showMessage("預覽已隱藏，AI 仍會繼續追蹤", false);
+                    }
+                });
+            }
 
             getEl('settings-btn').addEventListener('click', () => getEl('settings-modal').classList.remove('hidden'));
             getEl('close-settings').addEventListener('click', () => getEl('settings-modal').classList.add('hidden'));
