@@ -1,3 +1,22 @@
-這是一份為你的專案量身打造的 README.md。它涵蓋了核心功能、技術棧以及你最近在代碼中實現的高級功能（如 MMD 場景支援和 VMC 廣播）。 VRM AI Motion Capture Studio (High Performance)一個基於瀏覽器、高性能的實時 AI 動作捕捉工作室。只需一個鏡頭或一段影片，即可驅動你的 VRM 虛擬角色，並支援實時 MMD (PMX) 場景載入與 VMC 協議轉發。核心特性全方位追蹤：整合 Google MediaPipe Holistic，支援面部表情、視線、全身骨骼及手指高精度捕捉。MMD 場景集成：內置強大的 MMDLoader，支援直接拖放整個 MMD 模型資料夾，並具備自動貼圖路徑修復算法（解決日文/亂碼路徑導致的貼圖遺失問題）。VMC 協議廣播：支援透過 WebSocket 發送 VMC (Virtual Motion Capture) 數據，可同步至 VSeeFace、Unity 或 Unreal Engine。自適應平滑演算法：基於角度差異動態調整 $Slerp$ 平滑係數，平衡「動作即時性」與「畫面穩定性」。夢幻光暈 (Bloom)：內置後期處理渲染管線，可自定義強度的濾鏡效果，提升視覺質感。動作錄製：支援將捕捉到的動作數據導出為 JSON 格式，方便後續二次開發或回放。🚀 快速開始1. 執行環境由於瀏覽器安全限制（如 WebCam 調用），請透過本地伺服器開啟此 HTML 檔案：Bash# 使用 Python 快速開啟
+# 🌀 VRM AI Motion Capture Studio (High Performance)
+
+一個基於瀏覽器、高效率的實時 AI 動作捕捉工作室。只需一個網路攝影機或一段影片，即可驅動你的 **VRM** 虛擬角色，並支援實時 **MMD (PMX)** 場景載入與 **VMC** 協議轉發。
+
+## ✨ 核心特性
+
+* **全方位追蹤**：整合 Google MediaPipe Holistic，支援面部表情、視線、全身骨骼及手指高精度捕捉。
+* **MMD 場景集成**：內建強大的 `MMDLoader`，支援直接讀取整個資料夾。具備**自動貼圖路徑修復演算法**，能有效解決因日文或亂碼路徑導致的貼圖遺失問題。
+* **VMC 協議廣播**：支援透過 WebSocket 發送 VMC (Virtual Motion Capture) 數據，可同步至 VSeeFace、Unity 或 Unreal Engine 等外部軟體。
+* **自適應平滑演算法**：基於角度差異動態調整 $Slerp$ 平滑係數，在「動作即時性」與「畫面去抖動」之間取得最佳平衡。
+* **後期處理與優化**：
+    * **夢幻光暈 (UnrealBloom)**：可自定義強度、門檻與半徑，提升渲染質感。
+    * **鏡像修正**：可針對手臂與腿部獨立進行 X/Y/Z 軸向的鏡像調整。
+* **動作數據錄製**：支援將捕捉到的骨骼動作數據導出為 JSON 格式。
+
+## 🚀 快速開始
+
+### 1. 執行環境
+由於瀏覽器安全性限制（如存取攝影機），請透過本地伺服器開啟此專案：
+```bash
+# 使用 Python 快速開啟伺服器
 python -m http.server 8000
-然後訪問 http://localhost:8000。2. 載入模型VRM 角色：直接將 .vrm 檔案拖入瀏覽器視窗。MMD 場景：點擊「設置」->「選擇 MMD 場景資料夾」，選擇包含 .pmx 及其所有貼圖的完整目錄。3. 校準與同步按下鍵盤 C 鍵啟動 5 秒倒數校準，請保持立正姿勢以獲得最佳追蹤效果。在設置面板中可選擇 鏡頭 (Webcam) 或 上傳影片 進行偵錯。🛠 技術架構類別使用技術渲染引擎Three.js (WebGL)AI 引擎MediaPipe Holistic骨骼計算Kalidokit虛擬人規格@pixiv/three-vrmUI 框架Tailwind CSS⚙️ 高級設置說明動作鏡像 (Mirror Axis)：針對影片源的不同方向，可獨立修正手臂或腿部的 X/Y/Z 軸向。平滑度 (Smoothing)：數值低：反應極快，適合動作大的舞蹈。數值高：極度穩定，適合訪談、閒聊直播。VMC 廣播：需要配合一個簡單的 WebSocket-to-UDP 轉發器（如 Node.js server）來將數據發送至 OSC 設備。
