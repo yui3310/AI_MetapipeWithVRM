@@ -433,6 +433,8 @@
         import { MMDLoader } from 'three/addons/loaders/MMDLoader.js';
         import { DDSLoader } from 'three/addons/loaders/DDSLoader.js';
         import { TGALoader } from 'three/addons/loaders/TGALoader.js';
+        import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js';
+        import { SSRPass } from 'three/addons/postprocessing/SSRPass.js';
 
         // --- Memory Optimization: Pre-allocate Math Objects ---
         const _v1 = new THREE.Vector3();
@@ -448,6 +450,7 @@
         let recorder;
         let recordedChunks = [];
         let recording = false;
+        const clock = new THREE.Clock();
 
         const state = {
             vrm: null,
@@ -634,6 +637,10 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // 柔和邊緣陰影
+        renderer.toneMapping = THREE.ACESFilmicToneMapping; // 電影級色調
+        renderer.toneMappingExposure = 0.8;
         
         const container = getEl('canvas-container');
         if (container) container.appendChild(renderer.domElement);
@@ -647,9 +654,24 @@
         controls.target.set(0, 1.4, 0);
         controls.update();
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-        dirLight.position.set(1, 1, 1);
+        scene.add(new THREE.AmbientLight(0x2a3040, 0.8)); 
+
+        // 2. 主光源 (DirectionalLight)
+        // 改為「暖黃色」，模擬天花板那顆巨大燈籠的光源
+        const dirLight = new THREE.DirectionalLight(0xffe6cc, 2.5); 
+        dirLight.position.set(0, 10, 2); // 移到正上方偏前，往下打光
+        dirLight.castShadow = true; 
+
+        // 高畫質陰影貼圖設定保持不變
+        dirLight.shadow.mapSize.width = 2048; 
+        dirLight.shadow.mapSize.height = 2048;
+        dirLight.shadow.camera.near = 0.5;
+        dirLight.shadow.camera.far = 25;
+        dirLight.shadow.camera.left = -10; // 擴大陰影覆蓋範圍
+        dirLight.shadow.camera.right = 10;
+        dirLight.shadow.camera.top = 10;
+        dirLight.shadow.camera.bottom = -10;
+        dirLight.shadow.bias = -0.0005; 
         scene.add(dirLight);
 
         state.mediapipeHolistic = new Holistic({
@@ -659,12 +681,31 @@
             modelComplexity: 1,
             selfieMode: true,
             smoothLandmarks: true, // MediaPipe 內建平滑
+            refineFaceLandmarks: true,
             minDetectionConfidence: 0.7, // 提高信心閾值，過濾雜訊
             minTrackingConfidence: 0.7 
         });
 
+
         // --- Post-Processing Setup ---
         const renderScene = new RenderPass(scene, camera);
+        
+        const ssaoPass = new SSAOPass(scene, camera, window.innerWidth, window.innerHeight);
+        ssaoPass.kernelRadius = 16;      // 陰影擴散範圍 (越大越柔和)
+        ssaoPass.minDistance = 0.005;    // 開始計算陰影的最小距離
+        ssaoPass.maxDistance = 0.1;      // 陰影影響的最大距離
+
+        const ssrPass = new SSRPass({
+            renderer,
+            scene,
+            camera,
+            width: window.innerWidth,
+            height: window.innerHeight,
+            thickness: 0.05,     // 深度厚度容差 (解決反射穿模問題)
+            maxDistance: 3,      // 反射的最遠距離
+            opacity: 0.8         // 反射的整體透明度 (強度)
+        });
+
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight), 
             1.5, 0.4, 0.85
@@ -675,6 +716,8 @@
         const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
         const composer = new EffectComposer(renderer);
         composer.addPass(renderScene);
+        composer.addPass(ssrPass);
+        composer.addPass(ssaoPass);
         composer.addPass(bloomPass);
         composer.addPass(gammaCorrectionPass); 
 
@@ -798,6 +841,14 @@
                 }
                 VRMUtils.rotateVRM0(vrm);
                 state.vrm = vrm;
+
+                vrm.scene.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
                 scene.add(vrm.scene);
                 if (loaderEl) loaderEl.style.display = 'none';
                 if (getEl('status-text')) getEl('status-text').innerText = "模型載入成功";
@@ -940,8 +991,22 @@
                 if (node && rotation) {
                     const fingerSensitivity = 1.8;
                     let rotX = rotation.x * -1 * fingerSensitivity;
-                     let rotY = rotation.y * -1; 
+                    let rotY = rotation.y * -1; 
                     let rotZ = rotation.z * -1; 
+
+                    if (finger.includes("Thumb")) {
+                        // 由於不同建模軟體匯出的 VRM 大拇指座標系可能略有差異，
+                        // 通常取消 Z 軸或 Y 軸的 -1 反轉，就能讓大拇指往手心內彎。
+                        if (side === "Left") {
+                            rotX = rotation.x * fingerSensitivity;
+                            rotY = rotation.y;       // 取消 -1
+                            rotZ = rotation.z;       // 取消 -1，讓左大拇指向內凹
+                        } else {
+                            rotX = rotation.x * fingerSensitivity;
+                            rotY = rotation.y * -1;  
+                            rotZ = rotation.z;       // 右大拇指通常也需要取消 -1
+                        }
+                    }
                     
                     if (finger === "Wrist") {
                         rotZ = 0; // 完全鎖定翻轉 (Roll)，防止手肘因深度誤判而旋轉崩潰
@@ -1005,23 +1070,17 @@
                 const vw = state.videoSource?.videoWidth || 0;
                 const vh = state.videoSource?.videoHeight || 0;
 
-                // 方案 A：加入防錯判斷，確保解析度大於 0 才傳入
                 const faceRig = Kalidokit.Face.solve(faceLandmarks, {
                     runtime: "mediapipe",
                     video: vw > 0 ? state.videoSource : null,
                     imageSize: vw > 0 ? { width: vw, height: vh } : null
                 });
 
-                // 方案 B (更穩定)：MediaPipe 點位已經是 0~1 正規化，有時不傳 imageSize 反而更精準
-                // const faceRig = Kalidokit.Face.solve(faceLandmarks, { runtime: "mediapipe" });
-
-                console.log("左眼實際數值:", faceRig.eye.l); // 如果數值開始變化，代表解析度問題已解決
-
                 const exp = state.vrm.expressionManager;
                 const humanoid = state.vrm.humanoid;
 
-                if (exp) {
-                    // 1. 定義嘴部形狀列表
+                if (exp && humanoid) {
+                    // --- 1. 原本的嘴部形狀控制 (保留不變) ---
                     const mouthShapes = [
                         { key: 'aa', val: faceRig.mouth.shape.A },
                         { key: 'ih', val: faceRig.mouth.shape.I },
@@ -1029,44 +1088,77 @@
                         { key: 'ee', val: faceRig.mouth.shape.E },
                         { key: 'oh', val: faceRig.mouth.shape.O }
                     ];
-
                     mouthShapes.forEach(shape => {
-                        // 取得目前的表情數值
                         const currentVal = exp.getValue(shape.key) || 0;
-                        
-                        // --- 優化核心邏輯 ---
-                        let targetVal = shape.val;
+                        let targetVal = shape.val < 0.05 ? 0 : shape.val;
+                        exp.setValue(shape.key, THREE.MathUtils.lerp(currentVal, targetVal, 0.3));
+                    });
 
-                        // A. 門檻值過濾 (Dead Zone)：如果數值太小 (例如低於 0.05)，視為閉嘴，防止抽搐
-                        if (targetVal < 0.05) {
-                            targetVal = 0;
+                    // ▼▼▼ 2. 全新：智慧眨眼與眼球追蹤系統 ▼▼▼
+                    if (state.enableEyeTracking) {
+                        
+                        // 【A. 眨眼控制 (Blink)】
+                        // Kalidokit: 1 為全開，0 為全閉
+                        // VRM BlendShape: 0 為全開，1 為全閉 (需反轉數值)
+                        let blinkL = 1.0 - faceRig.eye.l;
+                        let blinkR = 1.0 - faceRig.eye.r;
+
+                        // 設立門檻值 (Deadzone)，避免眼睛半開半閉的無神狀態或抽搐
+                        const BLINK_THRESH = 0.3; // 低於此值視為完全睜眼
+                        const CLOSE_THRESH = 0.7; // 高於此值視為完全閉眼
+                        blinkL = blinkL < BLINK_THRESH ? 0 : (blinkL > CLOSE_THRESH ? 1 : blinkL);
+                        blinkR = blinkR < BLINK_THRESH ? 0 : (blinkR > CLOSE_THRESH ? 1 : blinkR);
+
+                        // 智慧同步：如果左右眼閉合程度差異不大，強制同步雙眼，避免變成奇怪的「拋媚眼」
+                        if (Math.abs(blinkL - blinkR) < 0.4) {
+                            const maxBlink = Math.max(blinkL, blinkR);
+                            blinkL = maxBlink;
+                            blinkR = maxBlink;
                         }
 
-                        // B. 平滑化 (Lerp)：不要直接跳到目標值，而是緩慢移動過去
-                        // 0.3 代表每幀移動 30%，數值越小越平滑但延遲感會增加
-                        const smoothedVal = THREE.MathUtils.lerp(currentVal, targetVal, 0.3);
+                        // 平滑過渡眨眼動作
+                        const currentBlinkL = exp.getValue('blinkLeft') || exp.getValue('blink') || 0;
+                        const currentBlinkR = exp.getValue('blinkRight') || exp.getValue('blink') || 0;
+                        exp.setValue('blinkLeft', THREE.MathUtils.lerp(currentBlinkL, blinkL, 0.5));
+                        exp.setValue('blinkRight', THREE.MathUtils.lerp(currentBlinkR, blinkR, 0.5));
+                        exp.setValue('blink', 0); // 確保統籌的 blink 歸零，交由左右獨立控制
 
-                        exp.setValue(shape.key, smoothedVal);
-                    });
-                }
+                        // 【B. 眼球轉動控制 (Gaze / Pupil)】
+                        const leftEyeBone = humanoid.getNormalizedBoneNode('leftEye');
+                        const rightEyeBone = humanoid.getNormalizedBoneNode('rightEye');
 
-                // C. 頭部旋轉 (讓角色頭部跟著動起來)
-                const headNode = humanoid.getNormalizedBoneNode('head');
-                const neckNode = humanoid.getNormalizedBoneNode('neck');
+                        if (leftEyeBone && rightEyeBone) {
+                            // 產生一個代表「零旋轉/看正前方」的四元數
+                            const zeroQuat = new THREE.Quaternion(); 
+                            
+                            // 強制將眼球骨骼平滑鎖死在中間，避免亂飄
+                            adaptiveSlerp(leftEyeBone, zeroQuat, 0.5);
+                            adaptiveSlerp(rightEyeBone, zeroQuat, 0.5);
+                        }
+                    } else {
+                        // 如果在 UI 關閉眼睛追蹤：強制睜眼並將眼球歸回正中央
+                        exp.setValue('blink', 0);
+                        exp.setValue('blinkLeft', 0);
+                        exp.setValue('blinkRight', 0);
+                        const leftEyeBone = humanoid.getNormalizedBoneNode('leftEye');
+                        const rightEyeBone = humanoid.getNormalizedBoneNode('rightEye');
+                        const zeroQuat = new THREE.Quaternion();
+                        if (leftEyeBone) adaptiveSlerp(leftEyeBone, zeroQuat, 0.5);
+                        if (rightEyeBone) adaptiveSlerp(rightEyeBone, zeroQuat, 0.5);
+                    }
+                    // ▲▲▲ 新增結束 ▲▲▲
 
-                if (headNode && neckNode) {
-                    // 將求解出的 Euler 角度轉換為四元數並套用平滑
-                    // faceRig.head 包含 x, y, z 的旋轉弧度
-                    const headQuat = new THREE.Quaternion().setFromEuler(
-                        new THREE.Euler(faceRig.head.x, faceRig.head.y, faceRig.head.z, 'XYZ')
-                    );
-                    
-                    // 將旋轉分配給頭部與脖子，讓動作更自然 (建議比例 7:3)
-                    adaptiveSlerp(headNode, headQuat, state.smoothness * 0.1);
+                    // --- 3. 原本的頭部與脖子旋轉 (保留不變) ---
+                    const headNode = humanoid.getNormalizedBoneNode('head');
+                    const neckNode = humanoid.getNormalizedBoneNode('neck');
+                    if (headNode && neckNode) {
+                        const headQuat = new THREE.Quaternion().setFromEuler(
+                            new THREE.Euler(faceRig.head.x, faceRig.head.y, faceRig.head.z, 'XYZ')
+                        );
+                        adaptiveSlerp(headNode, headQuat, state.smoothness * 0.1);
+                    }
                 }
             }
-            //if (faceLandmarks && state.vrm) updateMouth(faceLandmarks);
-            //if (faceLandmarks) updateBlink(faceLandmarks);
             
             controlBone(state.vrm, 'leftUpperArm', lm3D, 11, 13, [-1, 0, 0]); 
             controlBone(state.vrm, 'leftLowerArm', lm3D, 13, 15, [-1, 0, 0]);
@@ -1089,13 +1181,18 @@
                 applyHandRig(rightRig, "Right");
             }
 
-            state.vrm.update(0.016);
+            //state.vrm.update(0.016);
             captureMotionFrame();
             broadcastVMC();
         }
 
         function animate() {
             requestAnimationFrame(animate);
+
+            const deltaTime = clock.getDelta();
+            if (state.vrm) {
+                state.vrm.update(deltaTime);
+            }
             
             if (state.vrm && !state.isProcessing && state.videoSource && state.videoSource.readyState >= 2) {
                 const isTesting = state.testAttention || state.testZombie || state.testForward || 
@@ -1136,47 +1233,7 @@
             a.click();
         }
 
-        function updateBlink(face) {
-            const exp = state.vrm.expressionManager;
-            if (!exp) return;
-
-            if (!state.enableEyeTracking) {
-                exp.setValue('blink', 0);
-                exp.setValue('blinkLeft', 0);
-                exp.setValue('blinkRight', 0);
-                return;
-            }
-
-            const lTop = face[159], lBot = face[145], rTop = face[386], rBot = face[374];
-            if (!lTop || !lBot || !rTop || !rBot) return;
-
-            const leftOpen  = Math.abs(lTop.y - lBot.y);
-            const rightOpen = Math.abs(rTop.y - rBot.y);
-            const EYE_OPEN_MAX = 0.025, EYE_OPEN_MIN = 0.010;
-
-            let leftBlink = 1.0 - THREE.MathUtils.clamp((leftOpen - EYE_OPEN_MIN) / (EYE_OPEN_MAX - EYE_OPEN_MIN), 0, 1);
-            let rightBlink = 1.0 - THREE.MathUtils.clamp((rightOpen - EYE_OPEN_MIN) / (EYE_OPEN_MAX - EYE_OPEN_MIN), 0, 1);
-
-            leftBlink  = Math.pow(leftBlink,  0.6);
-            rightBlink = Math.pow(rightBlink, 0.6);
-
-            state.leftBlink  ??= 0;
-            state.rightBlink ??= 0;
-            state.leftBlink  = THREE.MathUtils.lerp(state.leftBlink,  leftBlink,  0.4);
-            state.rightBlink = THREE.MathUtils.lerp(state.rightBlink, rightBlink, 0.4);
-
-
-            const BOTH_EYES_THRESHOLD = 0.75;
-            if (state.leftBlink > BOTH_EYES_THRESHOLD && state.rightBlink > BOTH_EYES_THRESHOLD) {
-                exp.setValue('blink', Math.max(state.leftBlink, state.rightBlink));
-                exp.setValue('blinkLeft',  0);
-                exp.setValue('blinkRight', 0);
-            } else {
-                exp.setValue('blink', 0);
-                exp.setValue('blinkLeft',  state.leftBlink);
-                exp.setValue('blinkRight', state.rightBlink);
-            }
-        }
+        
 
         const setupEventListeners = () => {
 
@@ -1333,12 +1390,28 @@
                     // MMD 材質修正
                     mesh.traverse((child) => {
                         if (child.isMesh && child.material) {
-                            if (Array.isArray(child.material)) {
-                                child.material.forEach(m => { m.side = THREE.DoubleSide; m.transparent = true; });
-                            } else {
-                                child.material.side = THREE.DoubleSide;
-                                child.material.transparent = true;
-                            }
+                            child.castShadow = true;
+                            child.receiveShadow = true; 
+                            
+                            const mats = Array.isArray(child.material) ? child.material : [child.material];
+                            
+                            mats.forEach(m => { 
+                                m.side = THREE.DoubleSide; 
+                                m.alphaTest = 0.5; 
+                                m.transparent = m.opacity < 1.0; 
+
+                                if (m.emissive) m.emissive.setHex(0x000000); 
+                                
+                                // ▼▼▼ 新增：為了啟動 SSR 反射，增加材質的鏡面反光係數 ▼▼▼
+                                if (m.type === 'MeshPhongMaterial' || m.type === 'MeshToonMaterial') {
+                                    m.shininess = 80;        // 提高光澤度
+                                    m.reflectivity = 0.8;    // 開啟反射率
+                                    if (m.specular) m.specular.setHex(0x333333); // 給予一點點高光
+                                }
+                                // ▲▲▲ 新增結束 ▲▲▲
+                                
+                                if (m.map) m.map.colorSpace = THREE.SRGBColorSpace;
+                            });
                         }
                     });
 
