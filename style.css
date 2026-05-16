@@ -1,0 +1,164 @@
+body { margin: 0; overflow: hidden; background-color: #1a1a1a; font-family: 'Segoe UI', sans-serif; }
+#canvas-container { width: 100vw; height: 100vh; display: block; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #1f2937; }
+::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+
+/* Left Side Live Debug Panel */
+#live-debug-panel {
+    position: fixed; top: 100px; left: 20px;
+    width: 380px; max-height: 80vh;
+    background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(16px);
+    border: 2px solid rgba(59, 130, 246, 0.5); border-radius: 20px;
+    padding: 20px; color: white; font-family: 'Consolas', monospace;
+    z-index: 45; overflow-y: auto; pointer-events: auto;
+    display: flex; flex-direction: column; gap: 15px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+.debug-section-title {
+    font-size: 14px; font-weight: 900; color: #60a5fa; text-transform: uppercase;
+    letter-spacing: 0.12em; border-bottom: 2px solid #1e3a8a; padding-bottom: 6px;
+}
+
+.debug-card {
+    background: rgba(31, 41, 55, 0.95); border-radius: 12px; padding: 14px;
+    border-left: 6px solid #3b82f6; transition: all 0.3s;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+.debug-card.right { border-left-color: #ec4899; }
+.debug-card.leg { border-left-color: #10b981; }
+
+.val-row { display: flex; justify-content: space-between; font-size: 15px; margin-top: 6px; align-items: center; }
+.val-label { color: #9ca3af; font-weight: 500; }
+.val-data { color: #fbbf24; font-weight: 900; font-size: 16px; }
+
+/* --- Custom Dropdown Styles --- */
+.custom-dropdown-row { position: relative; z-index: 1; }
+.custom-dropdown-row.active-row { z-index: 100 !important; }
+
+.custom-dropdown-btn {
+    background: #374151; color: white; padding: 6px 10px; border-radius: 6px;
+    cursor: pointer; width: 100%; font-size: 11px; border: 1px solid #4b5563;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.custom-dropdown-btn:hover { border-color: #60a5fa; }
+
+.custom-dropdown-menu {
+    position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
+    background: #1f2937; border: 1px solid #60a5fa; border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+    display: none; flex-direction: column; overflow: hidden;
+}
+.custom-dropdown-menu.show { display: flex; }
+
+.dropdown-search-container { padding: 8px; background: #111827; border-bottom: 1px solid #374151; flex-shrink: 0; }
+.dropdown-search-input {
+    width: 100%; background: #374151; border: 1px solid #4b5563;
+    color: #fff; padding: 6px 8px; border-radius: 4px; font-size: 12px; outline: none;
+}
+.dropdown-search-input:focus { border-color: #3b82f6; background: #1f2937; }
+
+.dropdown-options-scroll { max-height: 180px; overflow-y: auto; background: #1f2937; }
+.dropdown-item {
+    padding: 8px 10px; font-size: 11px; color: #d1d5db; cursor: pointer; border-bottom: 1px solid #374151;
+}
+.dropdown-item:hover { background: #2563eb; color: white; }
+.dropdown-item.selected { background: #1d4ed8; color: white; font-weight: bold; border-left: 3px solid #60a5fa; }
+.dropdown-item.hidden-item { display: none; }
+
+/* UI Elements */
+#drag-overlay { pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+#drag-overlay.active { opacity: 1; background: rgba(0,0,0,0.7); }
+
+.loader {
+    border: 3px solid #374151; border-top: 3px solid #3b82f6; border-radius: 50%;
+    width: 20px; height: 20px; animation: spin 1s linear infinite; display: none;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* ▼▼▼ 修改重點：懸浮預覽視窗 ▼▼▼ */
+#floating-preview {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 320px; height: 180px;
+    
+    /* 背景透明，無邊框，無陰影 */
+    background: transparent; 
+    border: none; 
+    box-shadow: none;
+    
+    border-radius: 12px; 
+    overflow: hidden; z-index: 40; 
+    display: none; transition: all 0.3s ease;
+}
+
+#floating-preview:hover { 
+    width: 480px; height: 270px;
+    /* 滑鼠移上去才顯示黑底，方便操作 */
+    background: rgba(0, 0, 0, 0.6); 
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+/* 影片與繪圖層 */
+#source-video { 
+    width: 100%; height: 100%; object-fit: contain;
+    /* ▼▼▼ 修改重點：隱藏影片本身 ▼▼▼ */
+    opacity: 1; 
+    pointer-events: none;
+}
+
+#preview-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* 獨立雷達層 */
+#radar-canvas {
+    position: absolute; top: 10px; left: 10px;
+    width: 140px; height: 140px;
+    z-index: 45; pointer-events: none;
+}
+
+/* Video Controls */
+#video-controls {
+    position: absolute; bottom: 0; left: 0; width: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0));
+    padding: 10px 15px; display: flex; align-items: center; gap: 12px;
+    opacity: 0; transition: opacity 0.3s; z-index: 50;
+}
+#floating-preview:hover #video-controls { opacity: 1; }
+
+#video-seeker {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 6px; background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px; outline: none; cursor: pointer; transition: background 0.2s;
+}
+#video-seeker:hover { background: rgba(255, 255, 255, 0.4); }
+#video-seeker::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #3b82f6; cursor: pointer; border: 2px solid #ffffff; box-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+#video-seeker::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #3b82f6; cursor: pointer; border: 2px solid #ffffff;
+}
+
+.test-menu-container {
+    position: absolute; top: 100%; right: 0; margin-top: 0.5rem;
+    background: #1f2937; border: 1px solid #374151; border-radius: 12px;
+    width: 180px; display: none; flex-direction: column; overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); z-index: 50;
+}
+.test-menu-container.show { display: flex; }
+.test-menu-item {
+    padding: 12px 16px; font-size: 13px; color: #d1d5db; text-align: left;
+    transition: all 0.2s; border-bottom: 1px solid #374151;
+}
+.test-menu-item:last-child { border-bottom: none; }
+.test-menu-item:hover { background: #2563eb; color: white; }
+.test-menu-item.active { background: #1d4ed8; color: white; font-weight: bold; }
+
+#msg-box {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    z-index: 100; padding: 12px 24px; border-radius: 8px; background: #ef4444;
+    color: white; font-weight: bold; display: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+}
